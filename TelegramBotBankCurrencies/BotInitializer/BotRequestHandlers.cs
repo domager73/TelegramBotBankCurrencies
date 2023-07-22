@@ -35,7 +35,7 @@ public class BotRequestHandlers
                     chatId = update.CallbackQuery!.Message!.Chat.Id;
                     messageId = update.CallbackQuery.Message.MessageId;
                     string callbackData = update.CallbackQuery!.Data!;
-                    responseBotMessage = _botLogic.ProcessClickOnStartKeyboard(callbackData);
+                    responseBotMessage =  await _botLogic.ProcessClickOnStartKeyboard(callbackData);
                     break;
             }
 

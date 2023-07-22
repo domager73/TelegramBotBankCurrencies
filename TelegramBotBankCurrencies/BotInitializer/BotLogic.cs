@@ -1,6 +1,7 @@
 using System.Text;
 using TelegramBotBankCurrencies.DB;
 using TelegramBotBankCurrencies.Models;
+using TelegramBotBankCurrencies.Servise;
 using TelegramBotBankCurrencies.Util;
 
 namespace TelegramBotBankCurrencies.BotInitializer;
@@ -17,7 +18,7 @@ public class BotLogic
         return new BotMessage("Нажмите /start");
     }
 
-    public BotMessage ProcessClickOnStartKeyboard(string callbackData)
+    public async Task<BotMessage> ProcessClickOnStartKeyboard(string callbackData)
     {
         if (callbackData == ButtonsStorage.ShowProfitableBuyUsd.CallBackData)
         {
@@ -27,18 +28,29 @@ public class BotLogic
 
             foreach (Currency currency in currencies)
             {
-                stringBuilder.Append($"Банк: {currency.BankName}, Цена: {currency.UsdBankSell}\n");
+                stringBuilder.Append($"Банк: {currency.BankName}, Покупка: {currency.UsdBankSell}\n");
             }
 
             return new BotMessage(stringBuilder.ToString());
         }
         else if (callbackData == ButtonsStorage.ShowProfitableSellUsd.CallBackData)
         {
-            return new BotMessage(ButtonsStorage.ShowProfitableSellUsd.CallBackData);
+            List<Currency> currencies = DBManager.Instance.TableCurrencies.GetMinCurrenciesByBuy();
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+            foreach (Currency currency in currencies)
+            {
+                stringBuilder.Append($"Банк: {currency.BankName}, Продажа: {currency.UsdBankBuy}\n");
+            }
+
+            return new BotMessage(stringBuilder.ToString());
         }
         else if (callbackData == ButtonsStorage.ShowCbUsdCourse.CallBackData)
         {
-            return new BotMessage(ButtonsStorage.ShowCbUsdCourse.CallBackData);
+            string usd = await CbApi.GetBillByBill("USD");
+            
+            return new BotMessage(usd);
         }
         
         throw new Exception("CallBackData не распознана");
